@@ -32,24 +32,45 @@ func NewYTDLPService(ytdlpPath string, cookiesPath string) *YTDLPService {
 	return &YTDLPService{ytdlpPath: ytdlpPath, cookiesPath: cookiesPath}
 }
 
-func (s *YTDLPService) baseArgs() []string {
+func (s *YTDLPService) ensureCookies() string {
 	if s.cookiesPath == "" {
-		return nil
+		return ""
 	}
 	tmpDir := os.TempDir()
 	tmpCookie := filepath.Join(tmpDir, "ytune-cookies.txt")
+
+	if info, err := os.Stat(s.cookiesPath); err != nil {
+		log.Warn().Err(err).Str("path", s.cookiesPath).Msg("cookies file not accessible")
+		return ""
+	} else {
+		log.Info().Int64("size", info.Size()).Str("path", s.cookiesPath).Msg("cookies file found")
+	}
+
 	if _, err := os.Stat(tmpCookie); os.IsNotExist(err) {
 		src, err := os.Open(s.cookiesPath)
-		if err == nil {
-			defer src.Close()
-			dst, err := os.Create(tmpCookie)
-			if err == nil {
-				defer dst.Close()
-				io.Copy(dst, src)
-			}
+		if err != nil {
+			log.Warn().Err(err).Msg("failed to open cookies file")
+			return ""
 		}
+		defer src.Close()
+		dst, err := os.Create(tmpCookie)
+		if err != nil {
+			log.Warn().Err(err).Msg("failed to create temp cookies file")
+			return ""
+		}
+		defer dst.Close()
+		io.Copy(dst, src)
+		log.Info().Str("tmp", tmpCookie).Msg("cookies copied to temp file")
 	}
-	return []string{"--cookies", tmpCookie}
+	return tmpCookie
+}
+
+func (s *YTDLPService) baseArgs() []string {
+	cookieFile := s.ensureCookies()
+	if cookieFile == "" {
+		return nil
+	}
+	return []string{"--cookies", cookieFile}
 }
 
 func (s *YTDLPService) Search(ctx context.Context, query string) ([]YTDLPSearchResult, error) {
