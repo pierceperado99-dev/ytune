@@ -1,0 +1,8 @@
+.env
+.env.local
+backend/.env
+frontend/build/
+frontend/.dart_tool/
+frontend/.packages
+.DS_Store
+*.log

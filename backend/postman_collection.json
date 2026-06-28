@@ -1,0 +1,213 @@
+{
+	"info": {
+		"name": "YTune Backend API",
+		"description": "API collection for YTune music player backend.\n\nBase URL: http://localhost:8080",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "health"]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n    \"status\": \"ok\",\n    \"service\": \"music-api\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "Search Music",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/search?q=weekend%20blinding%20lights",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "weekend blinding lights",
+									"description": "Search query (URL encoded)"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"results\": [\n            {\n                \"id\": \"4NRXx6U8ABo\",\n                \"title\": \"The Weeknd - Blinding Lights\",\n                \"artist\": \"The Weeknd\",\n                \"thumbnail\": \"https://i.ytimg.com/vi/4NRXx6U8ABo/maxresdefault.jpg\",\n                \"duration\": 203,\n                \"url\": \"https://www.youtube.com/watch?v=4NRXx6U8ABo\"\n            }\n        ]\n    }\n}"
+						},
+						{
+							"name": "Missing Query",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n    \"success\": false,\n    \"message\": \"query parameter 'q' is required\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Stream",
+			"item": [
+				{
+					"name": "Get Stream URL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/stream/4NRXx6U8ABo",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "stream", "4NRXx6U8ABo"]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": \"4NRXx6U8ABo\",\n        \"stream_url\": \"https://rr2---sn-...googlevideo.com/...\",\n        \"expires\": true\n    }\n}"
+						},
+						{
+							"name": "Invalid ID",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n    \"success\": false,\n    \"message\": \"invalid video ID format\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Audio Proxy",
+			"item": [
+				{
+					"name": "Proxy Audio Stream",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/audio/4NRXx6U8ABo",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "audio", "4NRXx6U8ABo"]
+						}
+					},
+					"response": [
+						{
+							"name": "Success (audio stream)",
+							"status": "OK",
+							"code": 200,
+							"header": [
+								{ "key": "Content-Type", "value": "audio/webm; codecs=\"opus\"" },
+								{ "key": "Accept-Ranges", "value": "bytes" }
+							],
+							"body": "<binary audio data>"
+						}
+					]
+				},
+				{
+					"name": "Proxy Audio (with Range header)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Range",
+								"value": "bytes=0-1048575",
+								"description": "Request first 1MB chunk"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/audio/4NRXx6U8ABo",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "audio", "4NRXx6U8ABo"]
+						}
+					},
+					"response": [
+						{
+							"name": "Partial Content",
+							"status": "Partial Content",
+							"code": 206,
+							"header": [
+								{ "key": "Content-Type", "value": "audio/webm; codecs=\"opus\"" },
+								{ "key": "Content-Range", "value": "bytes 0-1048575/5000000" },
+								{ "key": "Accept-Ranges", "value": "bytes" }
+							],
+							"body": "<binary audio data chunk>"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Error Examples",
+			"item": [
+				{
+					"name": "Empty Search Query",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/search",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "search"]
+						}
+					},
+					"response": [
+						{
+							"name": "Bad Request",
+							"status": "Bad Request",
+							"code": 400,
+							"header": [
+								{ "key": "Content-Type", "value": "application/json" }
+							],
+							"body": "{\n    \"success\": false,\n    \"message\": \"query parameter 'q' is required\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
