@@ -56,6 +56,10 @@ func (h *StreamHandler) ProxyAudio(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "failed to create upstream request")
 	}
 
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36")
+	req.Header.Set("Referer", "https://www.youtube.com/")
+	req.Header.Set("Origin", "https://www.youtube.com")
+
 	if rangeHeader := c.Get("Range"); rangeHeader != "" {
 		req.Header.Set("Range", rangeHeader)
 	}
