@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -30,10 +33,23 @@ func NewYTDLPService(ytdlpPath string, cookiesPath string) *YTDLPService {
 }
 
 func (s *YTDLPService) baseArgs() []string {
-	if s.cookiesPath != "" {
-		return []string{"--cookies", s.cookiesPath}
+	if s.cookiesPath == "" {
+		return nil
 	}
-	return nil
+	tmpDir := os.TempDir()
+	tmpCookie := filepath.Join(tmpDir, "ytune-cookies.txt")
+	if _, err := os.Stat(tmpCookie); os.IsNotExist(err) {
+		src, err := os.Open(s.cookiesPath)
+		if err == nil {
+			defer src.Close()
+			dst, err := os.Create(tmpCookie)
+			if err == nil {
+				defer dst.Close()
+				io.Copy(dst, src)
+			}
+		}
+	}
+	return []string{"--cookies", tmpCookie}
 }
 
 func (s *YTDLPService) Search(ctx context.Context, query string) ([]YTDLPSearchResult, error) {
