@@ -117,8 +117,7 @@ func (s *YTDLPService) GetStreamURL(ctx context.Context, videoID string) (string
 
 	args := []string{
 		"-f", "bestaudio[ext=m4a]/bestaudio/best",
-		"--extractor-args", "youtube:player_client=android;skip=webpage,configs,js",
-		"--sleep-requests", "3",
+		"--extractor-args", "youtube:player_client=tv_embedded",
 		"-g", url, "--no-warnings", "--no-playlist",
 	}
 	if s.cookiesPath != "" {
