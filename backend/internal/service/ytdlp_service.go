@@ -116,6 +116,8 @@ func (s *YTDLPService) GetStreamURL(ctx context.Context, videoID string) (string
 	defer cancel()
 
 	args := append(s.baseArgs(),
+		"-f", "bestaudio[ext=m4a]/bestaudio/best",
+		"--extractor-args", "youtube:player_client=android",
 		"-g", url, "--no-warnings", "--no-playlist")
 	cmd := exec.CommandContext(ctx, s.ytdlpPath, args...)
 
