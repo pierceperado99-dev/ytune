@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ytune
+    runtime: docker
+    repo: https://github.com/pierceperado99-dev/ytune
+    plan: free
+    region: oregon
+    envVars:
+      - key: FRONTEND_URL
+        value: "*"
+      - key: PORT
+        value: "10000"
