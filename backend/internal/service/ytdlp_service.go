@@ -120,6 +120,9 @@ func (s *YTDLPService) GetStreamURL(ctx context.Context, videoID string) (string
 		"--extractor-args", "youtube:player_client=android",
 		"-g", url, "--no-warnings", "--no-playlist",
 	}
+	if s.cookiesPath != "" {
+		args = append([]string{"--cookies", s.ensureCookies()}, args...)
+	}
 	cmd := exec.CommandContext(ctx, s.ytdlpPath, args...)
 
 	stdout, err := cmd.Output()
