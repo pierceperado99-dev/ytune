@@ -1,7 +1,7 @@
 class ApiConstants {
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:8080/api',
+    defaultValue: 'https://ytune-ajm9.onrender.com/api',
   );
   static const String search = '/search';
   static const String stream = '/stream';

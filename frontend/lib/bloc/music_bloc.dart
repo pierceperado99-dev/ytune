@@ -16,6 +16,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   StreamSubscription<Duration>? _positionSub;
   StreamSubscription<Duration?>? _durationSub;
   StreamSubscription<PlayerState>? _playerStateSub;
+  StreamSubscription<PlaybackEvent>? _playbackEventSub;
 
   MusicBloc({
     required MusicRepository repository,
@@ -55,6 +56,13 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
         }
       }
     });
+
+    _playbackEventSub?.cancel();
+    _playbackEventSub = _audioService.playbackEventStream.listen((event) {
+      if (!isClosed && event.processingState == ProcessingState.error) {
+        add(PlaybackError());
+      }
+    });
   }
 
   @override
@@ -62,6 +70,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     _positionSub?.cancel();
     _durationSub?.cancel();
     _playerStateSub?.cancel();
+    _playbackEventSub?.cancel();
     _audioService.dispose();
     return super.close();
   }

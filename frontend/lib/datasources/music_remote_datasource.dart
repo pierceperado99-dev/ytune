@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../core/constants/api_constants.dart';
 import '../models/music_model.dart';
 
 class MusicRemoteDatasource {
@@ -26,14 +27,6 @@ class MusicRemoteDatasource {
   }
 
   Future<String> getStreamUrl(String id) async {
-    final response = await _dio.get('/stream/$id');
-
-    final body = response.data as Map<String, dynamic>;
-    if (body['success'] == true) {
-      final data = body['data'] as Map<String, dynamic>;
-      return data['stream_url'] as String;
-    }
-
-    throw Exception(body['message'] as String? ?? 'Failed to get stream URL');
+    return '${ApiConstants.baseUrl}/audio/$id';
   }
 }

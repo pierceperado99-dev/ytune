@@ -11,6 +11,7 @@ class AudioPlayerService {
   Stream<bool> get playingStream => _player.playingStream;
   Stream<ProcessingState> get processingStateStream =>
       _player.processingStateStream;
+  Stream<PlaybackEvent> get playbackEventStream => _player.playbackEventStream;
 
   Future<void> setSourceUrl(String url) async {
     await _player.setAudioSource(
