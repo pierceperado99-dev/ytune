@@ -27,6 +27,12 @@ class MusicRemoteDatasource {
   }
 
   Future<String> getStreamUrl(String id) async {
-    return '${ApiConstants.baseUrl}/audio/$id';
+    final response = await _dio.get('/stream/$id');
+    final body = response.data as Map<String, dynamic>;
+    if (body['success'] == true) {
+      final data = body['data'] as Map<String, dynamic>;
+      return data['stream_url'] as String;
+    }
+    throw Exception(body['message'] as String? ?? 'Failed to get stream URL');
   }
 }
