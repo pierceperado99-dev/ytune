@@ -69,7 +69,7 @@ func (s *YTDLPService) GetStreamURL(ctx context.Context, videoID string) (string
 	ctx, cancel := context.WithTimeout(ctx, 120*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, s.ytdlpPath, "-f", "bestaudio", "-g", url, "--no-warnings", "--no-playlist")
+	cmd := exec.CommandContext(ctx, s.ytdlpPath, "-f", "bestaudio[ext=m4a]/bestaudio", "-g", url, "--no-warnings", "--no-playlist")
 
 	stdout, err := cmd.Output()
 	if err != nil {
