@@ -27,7 +27,7 @@ func main() {
 
 	cfg := config.Load()
 
-	ytdlpService := service.NewYTDLPService(cfg.YtdlpPath)
+	ytdlpService := service.NewYTDLPService(cfg.YtdlpPath, cfg.CookiesPath)
 	youtubeService := service.NewYouTubeService(ytdlpService)
 
 	searchHandler := handler.NewSearchHandler(youtubeService)

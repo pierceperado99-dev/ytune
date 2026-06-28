@@ -10,6 +10,7 @@ type Config struct {
 	Port        string
 	FrontendURL string
 	YtdlpPath   string
+	CookiesPath string
 }
 
 func Load() *Config {
@@ -19,6 +20,7 @@ func Load() *Config {
 		Port:        getEnv("PORT", "8080"),
 		FrontendURL: getEnv("FRONTEND_URL", "http://localhost:5000"),
 		YtdlpPath:   getEnv("YTDLP_PATH", "yt-dlp"),
+		CookiesPath: getEnv("COOKIES_PATH", ""),
 	}
 }
 

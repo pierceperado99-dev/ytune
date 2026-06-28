@@ -81,6 +81,13 @@ class DurationUpdated extends MusicEvent {
   List<Object?> get props => [duration];
 }
 
+class PlaybackStarted extends MusicEvent {
+  const PlaybackStarted();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class PlaybackEnded extends MusicEvent {
   const PlaybackEnded();
 

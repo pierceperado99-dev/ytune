@@ -21,11 +21,19 @@ type YTDLPSearchResult struct {
 }
 
 type YTDLPService struct {
-	ytdlpPath string
+	ytdlpPath   string
+	cookiesPath string
 }
 
-func NewYTDLPService(ytdlpPath string) *YTDLPService {
-	return &YTDLPService{ytdlpPath: ytdlpPath}
+func NewYTDLPService(ytdlpPath string, cookiesPath string) *YTDLPService {
+	return &YTDLPService{ytdlpPath: ytdlpPath, cookiesPath: cookiesPath}
+}
+
+func (s *YTDLPService) baseArgs() []string {
+	if s.cookiesPath != "" {
+		return []string{"--cookies", s.cookiesPath}
+	}
+	return nil
 }
 
 func (s *YTDLPService) Search(ctx context.Context, query string) ([]YTDLPSearchResult, error) {
@@ -34,7 +42,8 @@ func (s *YTDLPService) Search(ctx context.Context, query string) ([]YTDLPSearchR
 	ctx, cancel := context.WithTimeout(ctx, 120*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, s.ytdlpPath, searchQuery, "--dump-json", "--no-warnings", "--no-playlist", "--flat-playlist")
+	args := append(s.baseArgs(), searchQuery, "--dump-json", "--no-warnings", "--no-playlist", "--flat-playlist")
+	cmd := exec.CommandContext(ctx, s.ytdlpPath, args...)
 
 	stdout, err := cmd.Output()
 	if err != nil {
@@ -69,10 +78,10 @@ func (s *YTDLPService) GetStreamURL(ctx context.Context, videoID string) (string
 	ctx, cancel := context.WithTimeout(ctx, 120*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, s.ytdlpPath,
+	args := append(s.baseArgs(),
 		"-f", "bestaudio[ext=m4a]/140/251/bestaudio/best",
-		"--extractor-args", "youtube:player_client=android",
 		"-g", url, "--no-warnings", "--no-playlist")
+	cmd := exec.CommandContext(ctx, s.ytdlpPath, args...)
 
 	stdout, err := cmd.Output()
 	if err != nil {

@@ -16,7 +16,6 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
   StreamSubscription<Duration>? _positionSub;
   StreamSubscription<Duration?>? _durationSub;
   StreamSubscription<PlayerState>? _playerStateSub;
-  StreamSubscription<PlaybackEvent>? _playbackEventSub;
 
   MusicBloc({
     required MusicRepository repository,
@@ -33,6 +32,7 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     on<VolumeChanged>(_onVolumeChanged);
     on<PositionUpdated>(_onPositionUpdated);
     on<DurationUpdated>(_onDurationUpdated);
+    on<PlaybackStarted>(_onPlaybackStarted);
     on<PlaybackEnded>(_onPlaybackEnded);
     on<PlaybackError>(_onPlaybackError);
   }
@@ -53,16 +53,13 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       if (!isClosed) {
         if (playerState.processingState == ProcessingState.completed) {
           add(PlaybackEnded());
+        } else if (playerState.processingState == ProcessingState.ready &&
+            playerState.playing) {
+          add(PlaybackStarted());
         }
       }
     });
 
-    _playbackEventSub?.cancel();
-    _playbackEventSub = _audioService.playbackEventStream.listen((event) {
-      if (!isClosed && event.processingState == ProcessingState.error) {
-        add(PlaybackError());
-      }
-    });
   }
 
   @override
@@ -70,7 +67,6 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     _positionSub?.cancel();
     _durationSub?.cancel();
     _playerStateSub?.cancel();
-    _playbackEventSub?.cancel();
     _audioService.dispose();
     return super.close();
   }
@@ -105,11 +101,10 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
       final streamUrl = await _repository.getStreamUrl(event.music.id);
       await _audioService.setSourceUrl(streamUrl);
       _initPlayerListeners();
-      _audioService.play();
+      unawaited(_audioService.play().catchError((_) {}));
 
       emit(state.copyWith(
         isLoading: false,
-        isPlaying: true,
         position: Duration.zero,
       ));
     } catch (e) {
@@ -176,6 +171,13 @@ class MusicBloc extends Bloc<MusicEvent, MusicState> {
     Emitter<MusicState> emit,
   ) {
     emit(state.copyWith(duration: event.duration));
+  }
+
+  void _onPlaybackStarted(
+    PlaybackStarted event,
+    Emitter<MusicState> emit,
+  ) {
+    emit(state.copyWith(isPlaying: true));
   }
 
   void _onPlaybackEnded(
